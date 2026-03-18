@@ -54,7 +54,9 @@ export const getLLBService = async ({ rank, category, region, course }) => {
         institute: row.Institute,
         course: row.Course,
         minRank: range.min,
-        maxRank: range.max
+        maxRank: range.max,
+        region: region,
+        category: category
       });
     }
   }
@@ -88,7 +90,10 @@ export const getBCABBAService = async ({ rank, category, region, course, sheetNa
         institute: row.Institute,
         course: row.Course,
         minRank: range.min,
-        maxRank: range.max
+        maxRank: range.max,
+        region: region,
+        category: category,
+        round: row.Round
       });
 
     }
@@ -124,7 +129,8 @@ export const getBTechService = async ({ rank, category }) => {
         college: row.college,
         branch: row.branch,
         openingRank: row.openingRank,
-        closingRank: row.closingRank
+        closingRank: row.closingRank,
+        round: row.round
       });
 
     }
