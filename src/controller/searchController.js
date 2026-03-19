@@ -159,6 +159,7 @@ export const paymentController = async (req, res) => {
       rank,
       region,
       category,
+      amount,
       payment
     } = req.body;
 
@@ -175,7 +176,8 @@ export const paymentController = async (req, res) => {
       course,
       rank: Number(rank),
       region,
-      category
+      category,
+      amount
     });
 
     res.json({

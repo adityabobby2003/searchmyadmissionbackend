@@ -12,7 +12,7 @@ export const checkUserPayment = async ({
 };
 
 export const createPaymentEntry = async ({
-  email, exam, course, rank, region, category
+  email, exam, course, rank, region, category, amount
 }) => {
 //   category.toLowerCase()
 //   region.toLowerCase()
@@ -27,6 +27,7 @@ export const createPaymentEntry = async ({
     rank,
     region,
     category,
+    amount,
     paid_at: new Date()
   });
 
