@@ -56,7 +56,8 @@ export const getLLBService = async ({ rank, category, region, course }) => {
         minRank: range.min,
         maxRank: range.max,
         region: region,
-        category: category
+        category: category,
+        round: row.Round
       });
     }
   }
@@ -102,9 +103,19 @@ export const getBCABBAService = async ({ rank, category, region, course, sheetNa
   return results;
 };
 
-export const getBTechService = async ({ rank, category }) => {
+export const getBTechService = async ({ rank, category, course, region }) => {
 
   const sheet = workbook.Sheets["AKTU BTECH 2025 Cutoff"];
+
+  const reg= null;
+  
+  if(region=="delhi"){
+    reg= "AI"
+  }else{
+    reg= "HS"
+  }
+
+  const branch= course;
 
   // Normalize Excel columns once
   const data = XLSX.utils.sheet_to_json(sheet).map(row => ({
@@ -123,14 +134,20 @@ export const getBTechService = async ({ rank, category }) => {
 
     if (row.category !== category) continue;
 
+    if (row.branch !== branch) continue;
+
+    if (row.region !== reg) continue;
+
     if (rank >= row.openingRank && rank <= row.closingRank) {
 
       results.push({
-        college: row.college,
-        branch: row.branch,
-        openingRank: row.openingRank,
-        closingRank: row.closingRank,
-        round: row.round
+        institute: row.college,
+        course: row.branch,
+        minRank: row.openingRank,
+        maxRank: row.closingRank,
+        round: row.round,
+        region: region,
+        category: row.category
       });
 
     }
