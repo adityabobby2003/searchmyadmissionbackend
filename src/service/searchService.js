@@ -57,10 +57,12 @@ export const getLLBService = async ({ rank, category, region, course }) => {
         maxRank: range.max,
         region: region,
         category: category,
-        round: row.Round
+        round: row.Round,
       });
     }
   }
+
+  // results.sort((a, b) => b.finalScore - a.finalScore);
 
   return results;
 };
@@ -94,11 +96,13 @@ export const getBCABBAService = async ({ rank, category, region, course, sheetNa
         maxRank: range.max,
         region: region,
         category: category,
-        round: row.Round
+        round: row.Round,
       });
 
     }
   }
+
+  // results.sort((a, b) => b.finalScore - a.finalScore);
 
   return results;
 };
@@ -107,7 +111,7 @@ export const getBTechService = async ({ rank, category, course, region }) => {
 
   const sheet = workbook.Sheets["AKTU BTECH 2025 Cutoff"];
 
-  const reg= null;
+  let reg= null;
   
   if(region=="delhi"){
     reg= "AI"
@@ -122,7 +126,7 @@ export const getBTechService = async ({ rank, category, course, region }) => {
     round: row["Round"],
     college: row["College"],
     branch: row["Branch"],
-    region: row["Region"]?.trim(),
+    region: row["Region"],
     category: row["Category "]?.trim(),
     openingRank: Number(row["Opening Rank "]),
     closingRank: Number(row["Closing Rank "])
@@ -153,6 +157,8 @@ export const getBTechService = async ({ rank, category, course, region }) => {
     }
 
   }
+
+  // results.sort((a, b) => b.finalScore - a.finalScore);
 
   return results;
 };

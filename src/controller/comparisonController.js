@@ -1,19 +1,19 @@
-import { getLLBService, getBCABBAService, getBTechService } from "../service/searchService.js";
-import { checkUserPayment, createPaymentEntry } from "../service/paymentService.js";
+import { getLLBService, getBCABBAService, getBTechService } from "../service/comparisonService.js";
+import { checkUserPayment } from "../service/paymentService.js";
 
 export const getllbController = async (req, res) => {
   try {
 
     const { rank, category, region, course, email, exam } = req.body;
 
-    // const isPaid = await checkUserPayment({
-    //   email,
-    //   exam,
-    //   course,
-    //   rank: Number(rank),
-    //   region,
-    //   category
-    // });
+    const isPaid = await checkUserPayment({
+      email,
+      exam,
+      course,
+      rank: Number(rank),
+      region,
+      category
+    });
 
     const data = await getLLBService({
       rank: Number(rank),
@@ -22,12 +22,11 @@ export const getllbController = async (req, res) => {
       course
     });
 
-    // const results = isPaid ? data : data.slice(0, 5);
     const results= data;
 
     res.json({
       success: true,
-      // paid: isPaid,
+      paid: isPaid,
       results
     });
 
@@ -45,14 +44,14 @@ export const getBCAController = async (req, res) => {
 
     const { rank, category, region, course, email, exam } = req.body;
 
-    // const isPaid = await checkUserPayment({
-    //   email,
-    //   exam,
-    //   course,
-    //   rank: Number(rank),
-    //   region,
-    //   category
-    // });
+    const isPaid = await checkUserPayment({
+      email,
+      exam,
+      course,
+      rank: Number(rank),
+      region,
+      category
+    });
 
     const data = await getBCABBAService({
       rank: Number(rank),
@@ -67,7 +66,7 @@ export const getBCAController = async (req, res) => {
 
      res.json({
       success: true,
-      // paid: isPaid,
+      paid: isPaid,
       results
     });
 
@@ -83,14 +82,14 @@ export const getBBAController = async (req, res) => {
 
     const { rank, category, region, course, email, exam } = req.body;
 
-    // const isPaid = await checkUserPayment({
-    //   email,
-    //   exam,
-    //   course,
-    //   rank: Number(rank),
-    //   region,
-    //   category
-    // });
+    const isPaid = await checkUserPayment({
+      email,
+      exam,
+      course,
+      rank: Number(rank),
+      region,
+      category
+    });
 
     const data = await getBCABBAService({
       rank: Number(rank),
@@ -105,7 +104,7 @@ export const getBBAController = async (req, res) => {
 
     res.json({
       success: true,
-      // paid: isPaid,
+      paid: isPaid,
       results
     });
 
@@ -120,14 +119,14 @@ export const getBTechController= async (req, res)=>{
 
     const { rank, category, region, course, email, exam } = req.body;
 
-    // const isPaid = await checkUserPayment({
-    //   email,
-    //   exam,
-    //   course,
-    //   rank: Number(rank),
-    //   region,
-    //   category
-    // });
+    const isPaid = await checkUserPayment({
+      email,
+      exam,
+      course,
+      rank: Number(rank),
+      region,
+      category
+    });
 
     const data = await getBTechService({
       rank: Number(rank),
@@ -141,7 +140,7 @@ export const getBTechController= async (req, res)=>{
 
     res.json({
       success: true,
-      // paid: isPaid,
+      paid: isPaid,
       results
     });
 
@@ -152,47 +151,3 @@ export const getBTechController= async (req, res)=>{
     });
   }
 }
-
-export const paymentController = async (req, res) => {
-  try {
-
-    const {
-      email,
-      exam,
-      course,
-      rank,
-      region,
-      category,
-      amount,
-      payment
-    } = req.body;
-
-    if (!payment) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment not completed"
-      });
-    }
-
-    await createPaymentEntry({
-      email,
-      exam,
-      course,
-      rank: Number(rank),
-      region,
-      category,
-      amount
-    });
-
-    res.json({
-      success: true,
-      message: "Payment recorded successfully"
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err.message
-    });
-  }
-};
