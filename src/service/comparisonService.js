@@ -210,7 +210,7 @@ function generateAIVerdict(results) {
 
 function buildComparisonResults(rawResults, userRank) {
 
-  const results= rawResults.map(college => {
+  const allResults= rawResults.map(college => {
 
     const strengthScore =
       calculateStrengthScore(college, rawResults);
@@ -233,9 +233,11 @@ function buildComparisonResults(rawResults, userRank) {
   })
   .sort((a, b) => b.finalScore - a.finalScore);
 
-  const aiVerdict= generateAIVerdict(results);
+  const topResults = allResults.slice(0, 5);
+
+  const aiVerdict= generateAIVerdict(topResults);
   return{
-    results,
+    results: topResults,
     aiVerdict
   };
 }
