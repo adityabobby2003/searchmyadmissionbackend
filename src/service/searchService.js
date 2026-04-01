@@ -113,10 +113,10 @@ export const getBTechService = async ({ rank, category, course, region }) => {
 
   let reg= null;
   
-  if(region=="delhi"){
-    reg= "AI"
-  }else{
+  if(region=="up"){
     reg= "HS"
+  }else{
+    reg= "AI"
   }
 
   const branch= course;
@@ -150,7 +150,7 @@ export const getBTechService = async ({ rank, category, course, region }) => {
         minRank: row.openingRank,
         maxRank: row.closingRank,
         round: row.round,
-        region: region,
+        region: row.region,
         category: row.category
       });
 

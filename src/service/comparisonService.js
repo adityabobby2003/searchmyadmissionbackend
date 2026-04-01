@@ -17,6 +17,53 @@ const columnMap = {
   st: { delhi: "STNOHS", outside: "STNOOS" }
 };
 
+function normalizeName(name) {
+  return name
+    ?.toUpperCase()
+    .replace(/[^A-Z0-9]/g, "")
+    .trim();
+}
+
+const btechRankSheet = workbook.Sheets["AKTU Btech Rank Score"];
+const btechRankData = XLSX.utils.sheet_to_json(btechRankSheet);
+
+const btechRankMap = {};
+btechRankData.forEach(row => {
+  btechRankMap[normalizeName(row["College"])] =
+    Number(row["Rank Score"]);
+});
+
+const bcaRankSheet = workbook.Sheets["BCA Rank Score"];
+const bcaRankData = XLSX.utils.sheet_to_json(bcaRankSheet);
+
+const bcaRankMap = {};
+bcaRankData.forEach(row => {
+  bcaRankMap[normalizeName(row["College"])] =
+    Number(row["Rank Score"]);
+});
+
+/* ================= ATTACH RANK ================= */
+function attachRankScore(rawResults, rankMap = null) {
+  let counter = 1;
+
+  return rawResults.map(college => {
+    if (rankMap) {
+      const normalized = normalizeName(college.institute);
+
+      return {
+        ...college,
+        rankScore: rankMap[normalized] || 999
+      };
+    }
+
+    // fallback (LLB / BBA)
+    return {
+      ...college,
+      rankScore: counter++
+    };
+  });
+}
+
 function parseRankRange(text) {
   if (!text || text === "-") return null;
 
@@ -231,13 +278,15 @@ function buildComparisonResults(rawResults, userRank) {
       ...metrics
     };
   })
-  .sort((a, b) => b.finalScore - a.finalScore);
+  .sort((a, b) => a.rankScore - b.rankScore);
 
   const topResults = allResults.slice(0, 5);
 
   const aiVerdict= generateAIVerdict(topResults);
+  // const aiVerdict= generateAIVerdict(allResults);
   return{
     results: topResults,
+    // results: allResults,
     aiVerdict
   };
 }
@@ -276,7 +325,9 @@ export const getLLBService = async ({
     }
   }
 
-  return buildComparisonResults(rawResults, rank);
+  const withRank = attachRankScore(rawResults, null);
+
+  return buildComparisonResults(withRank, rank);
 };
 
 export const getBCABBAService = async ({
@@ -314,7 +365,12 @@ export const getBCABBAService = async ({
     }
   }
 
-  return buildComparisonResults(rawResults, rank);
+  const rankMap =
+    sheetName.includes("BCA") ? bcaRankMap : null;
+
+  const withRank = attachRankScore(rawResults, rankMap);
+
+  return buildComparisonResults(withRank, rank);
 };
 
 export const getBTechService = async ({
@@ -326,7 +382,7 @@ export const getBTechService = async ({
 
   const sheet = workbook.Sheets["AKTU BTECH 2025 Cutoff"];
 
-  const reg = region === "delhi" ? "AI" : "HS";
+  const reg = region === "up" ? "HS" : "AI";
 
   const data = XLSX.utils.sheet_to_json(sheet).map(row => ({
     round: row["Round"],
@@ -338,12 +394,14 @@ export const getBTechService = async ({
     maxRank: Number(row["Closing Rank "])
   }));
 
-  const rawResults = data.filter(row =>
+  const filtered = data.filter(row =>
     row.category === category &&
     row.course === course &&
     row.region === reg &&
     rank <= row.maxRank
   );
 
-  return buildComparisonResults(rawResults, rank);
+  const withRank = attachRankScore(filtered, btechRankMap);
+
+  return buildComparisonResults(withRank, rank);
 };
