@@ -17,6 +17,35 @@ const columnMap = {
   st: { delhi: "STNOHS", outside: "STNOOS" }
 };
 
+function getRoundPriority(round) {
+  if (!round) return 999;
+  const num = parseInt(round.replace(/\D/g, ""));
+  return isNaN(num) ? 999 : num;
+}
+
+function dedupeCollegesByBestRound(results) {
+  const map = new Map();
+
+  for (const college of results) {
+    const key = normalizeName(college.institute);
+    const currentPriority = getRoundPriority(college.round);
+
+    if (!map.has(key)) {
+      map.set(key, college);
+    } else {
+      const existing = map.get(key);
+      const existingPriority = getRoundPriority(existing.round);
+
+      // Keep the earlier round (smaller number)
+      if (currentPriority < existingPriority) {
+        map.set(key, college);
+      }
+    }
+  }
+
+  return Array.from(map.values());
+}
+
 function normalizeName(name) {
   return name
     ?.toUpperCase()
@@ -38,7 +67,25 @@ const bcaRankData = XLSX.utils.sheet_to_json(bcaRankSheet);
 
 const bcaRankMap = {};
 bcaRankData.forEach(row => {
-  bcaRankMap[normalizeName(row["College"])] =
+  bcaRankMap[normalizeName(row["Institute"])] =
+    Number(row["Rank Score"]);
+});
+
+const llbRankSheet = workbook.Sheets["LLB Rank Score"];
+const llbRankData = XLSX.utils.sheet_to_json(llbRankSheet);
+
+const llbRankMap = {};
+llbRankData.forEach(row => {
+  llbRankMap[normalizeName(row["Institute"])] =
+    Number(row["Rank Score"]);
+});
+
+const bbaRankSheet = workbook.Sheets["BBA Rank Score"];
+const bbaRankData = XLSX.utils.sheet_to_json(bbaRankSheet);
+
+const bbaRankMap = {};
+bbaRankData.forEach(row => {
+  bbaRankMap[normalizeName(row["Institute"])] =
     Number(row["Rank Score"]);
 });
 
@@ -257,8 +304,7 @@ function generateAIVerdict(results) {
 
 function buildComparisonResults(rawResults, userRank) {
 
-  const allResults= rawResults.map(college => {
-
+  const processedResults = rawResults.map(college => {
     const strengthScore =
       calculateStrengthScore(college, rawResults);
 
@@ -277,8 +323,11 @@ function buildComparisonResults(rawResults, userRank) {
       brandPreference: getBrandPreference(strengthScore),
       ...metrics
     };
-  })
-  .sort((a, b) => a.rankScore - b.rankScore);
+  });
+
+  const dedupedResults = dedupeCollegesByBestRound(processedResults);
+
+  const allResults = dedupedResults.sort((a, b) => a.rankScore - b.rankScore);
 
   const topResults = allResults.slice(0, 5);
 
@@ -325,7 +374,7 @@ export const getLLBService = async ({
     }
   }
 
-  const withRank = attachRankScore(rawResults, null);
+  const withRank = attachRankScore(rawResults, llbRankMap);
 
   return buildComparisonResults(withRank, rank);
 };
@@ -366,7 +415,7 @@ export const getBCABBAService = async ({
   }
 
   const rankMap =
-    sheetName.includes("BCA") ? bcaRankMap : null;
+    sheetName.includes("BCA") ? bcaRankMap : bbaRankMap;
 
   const withRank = attachRankScore(rawResults, rankMap);
 
