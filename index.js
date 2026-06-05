@@ -4,6 +4,7 @@ import sequelize from "./src/db/db.js";
 import searchRoutes from './src/routes/searchRoutes.js'
 import comparisonRoutes from './src/routes/comparisonRoutes.js'
 import uploadRoutes from './src/routes/uploadRoutes.js'
+import razorpayRoutes from './src/routes/razorpayRoutes.js'
 import cors from 'cors';
 dotenv.config();
 
@@ -16,6 +17,7 @@ const port = process.env.PORT || 5000;
 app.use('/api', searchRoutes);
 app.use('/api', comparisonRoutes);
 app.use('/api', uploadRoutes);
+app.use('/api/payment', razorpayRoutes);
 
 app.use('/', (req, res)=>{
     res.send("search my admission backend");
@@ -23,7 +25,7 @@ app.use('/', (req, res)=>{
 
 const startServer = async () => {
   try {
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log("All tables synced with database");
   } catch (err) {
     console.error("Sync failed (continuing without DB):", err);

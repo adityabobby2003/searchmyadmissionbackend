@@ -11,7 +11,29 @@ const Payment = sequelize.define("Payment", {
   region: { type: DataTypes.STRING, allowNull: false },
   category: { type: DataTypes.STRING, allowNull: false },
 
-  amount: { type: DataTypes.DECIMAL(10,2), allowNull: true },
+  amount: { type: DataTypes.DECIMAL(10, 2), allowNull: false },
+
+  // Razorpay fields
+  razorpay_order_id: { 
+    type: DataTypes.STRING, 
+    allowNull: true,
+    unique: true 
+  },
+  razorpay_payment_id: { 
+    type: DataTypes.STRING, 
+    allowNull: true,
+    unique: true 
+  },
+  razorpay_signature: { 
+    type: DataTypes.STRING, 
+    allowNull: true 
+  },
+
+  // Payment status
+  payment_status: {
+    type: DataTypes.ENUM("pending", "completed", "failed", "refunded"),
+    defaultValue: "pending"
+  },
 
   paid_at: { type: DataTypes.DATE }
 }, {

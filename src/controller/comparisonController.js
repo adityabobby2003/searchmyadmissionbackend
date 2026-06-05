@@ -1,5 +1,5 @@
 import { getLLBService, getBCABBAService, getBTechService } from "../service/comparisonService.js";
-import { checkUserPayment } from "../service/paymentService.js";
+import { checkUserPayment } from "../service/razorpayService.js";
 
 export const getllbController = async (req, res) => {
   try {
